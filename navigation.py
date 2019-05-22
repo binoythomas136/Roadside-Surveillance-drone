@@ -28,11 +28,14 @@ from computations import Computations
 class Navigation():
 	#initialize
 	def __init__(self):
+		#self.rate = rospy.Rate(10)
 		self.subs=Subscribers()	
 		self.commands=Commands()	
 		self.pose = PoseStamped()
 		self.comp=Computations()
 		self.setpoint_publisher = rospy.Publisher("/mavros/setpoint_position/local", PoseStamped, queue_size=10)
+	def stillActive(self):
+		return self.subs.state.mode == 'OFFBOARD'
 	def assign(self,t):							#function to assign values
 		
 		self.pose.pose.position.x = t[0]
@@ -48,23 +51,29 @@ class Navigation():
 		#self.pose.pose.orientation.w=quat[3]
 		self.pose.pose.orientation=self.subs.pose.pose.orientation	
 	def waypoint(self,way_x,way_y,way_z):					#function to publish and travel to the next waypoint
+		rate = rospy.Rate(10)		
 		x=way_x
 		y=way_y
 		z=way_z
 		wp_list_example=[(x,y,z)]
-		rate = rospy.Rate(10)
+		
 			
-		#t = wp_list_example.pop()
-		#self.assign(t)		
-
+		
 			
 		while not len(wp_list_example) == 0:
 			t = wp_list_example.pop()
 			self.assign(t)
-
+				
+			print('going to', self.pose)
 			while abs(self.comp.compute_distance(self.pose,self.subs.pose)) > 0.5:
-				self.setpoint_publisher.publish(self.pose)
-				rate.sleep()
+				if(self.stillActive()):
+					self.setpoint_publisher.publish(self.pose)					
+					rate.sleep()
+					
+				else:	
+					print('exiting coz mode changed')					
+					return	
+				
 
 
 

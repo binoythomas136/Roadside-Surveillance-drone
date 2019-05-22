@@ -30,6 +30,9 @@ from road_following import RoadFollow
 #Create a class for the mission
 class Mission():
 	def __init__(self):
+		rospy.init_node("test_mission",log_level=rospy.INFO)		#initialize the pixhawk node
+		print('node initialized')
+		self.rate=rospy.Rate(10)
 		self.subs=Subscribers()						#initialize streaming of subscribers
 		self.comp=Computations()			
 		self.commands=Commands()
@@ -43,17 +46,25 @@ class Mission():
 		print('Publishers initialized')
 
 
-
+	def stillActive(self):
+		return (self.subs.state.mode == 'OFFBOARD')
+	
 	#main function for the drone mission
 	def way_mission(self):
-		rate=rospy.Rate(10)						#initialize the rate 
+		#rate=rospy.Rate(10)
 		self.comp.send_arb_waypoints()					#send arbitary number of waypoints for changing to offboard mode
 		self.commands.set_mode('OFFBOARD')				#set mode to offboard
-		self.commands.arm()						# arm the drone
-		#drone takeoff		
-		self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y,10)
-		#self.commands.set_mode('AUTO.TAKEOFF')
-		rate.sleep()
+		#self.commands.arm()						# arm the drone
+		#drone takeoff	
+		for i in range(4):
+			self.rate.sleep()
+		
+		if(self.stillActive()):
+			print('going to waypoint')
+			self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z+3)
+		else:	
+			return	
+		print('Takeoff completed')
 		
 
 		'''
@@ -100,17 +111,28 @@ class Mission():
 		#self.comp.send_arb_waypoints()
 		#self.commands.set_mode('OFFBOARD')				#change later after making road following robust
 		self.comp.road_next_waypoint(self.delta)			#compute the next waypoint and the orientation
-		'''		
-		self.commands.land()						#land the drone
-		rate.sleep()							
-		self.commands.disarm()						#disarm the drone
+				
+		if(True):
+		
+			self.commands.land()	
+		else:	
+			return	
+		'''
+		self.commands.land()
+		self.rate.sleep()
+		#for i in range(10):		
+			#self.rate.sleep()	
+		#self.commands.disarm()			
+		
 
 	def main(self):
-		rospy.init_node("test_mission",log_level=rospy.INFO)		#initialize the pixhawk node
-		print('node initialized')
-		rate = rospy.Rate(10)
+		
+		#rate = rospy.Rate(10)
+		while(self.subs.state.armed != True):				#check if armed
+			continue	
+		print("Armed")
 		while(1):		
-			if (self.subs.state.mode == 'POSCTL'): 			#failsafe
+			if (self.subs.state.mode == 'POSCTL'): 			#failsafe(will enter only if position)
 				self.way_mission()				#call the main mission
 				break
 			else:

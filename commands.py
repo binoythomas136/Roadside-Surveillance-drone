@@ -56,19 +56,24 @@ class Commands():
 		except rospy.ServiceException, e:
 	    		print "Failed Disarming: %s" % e
 
-	def land(self):									#function for landing the drone
+	def land(self):
+		self.set_mode('AUTO.LAND')						#autopilot land					
+		'''
 		land_lat=self.subs.glob_pos.latitude					#global latitude
 		land_lon=self.subs.glob_pos.longitude					#global longitude
 		land_alt=self.subs.glob_pos.altitude					#global altitude
-	 	#self.set_mode('AUTO.LAND')						#direct qgc land
+	 	
 		rospy.wait_for_service('/mavros/cmd/land')				
 		try:
 		    	land_service = rospy.ServiceProxy('/mavros/cmd/land',CommandTOL)#service
 		 	land_service(0,0,land_lat,land_lon,2)
 		except rospy.ServiceException, e:
-	    		print "Failed landinf: %s" % e
+	    		print "Failed landing: %s" % e
 		rate = rospy.Rate(10)
-		'''print('reached an altiude of 2 m')
+		
+		
+		
+		print('reached an altiude of 2 m')
 		for i in range(5):
 			rate.sleep()
 		#slow landing after 2 m
@@ -81,4 +86,4 @@ class Commands():
 			curr_vel = self.subs.velocity.twist.linear.z
 			prev_vel = curr_vel
 			rate.sleep()
-'''
+		'''

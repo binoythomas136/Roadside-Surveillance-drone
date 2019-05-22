@@ -25,6 +25,7 @@ from subscribers import Subscribers
 #class for all computations
 class Computations():
 	def __init__(self):
+		#self.rate=rospy.Rate(10)
 		self.subs=Subscribers()
 		self.setpoint_publisher = rospy.Publisher("/mavros/setpoint_position/local", PoseStamped, queue_size=10)
 		self.pose = PoseStamped()
@@ -39,8 +40,15 @@ class Computations():
 
 
 	def send_arb_waypoints(self):							#function to assiign arbitary no. of waypoints
+		
+		posx=self.subs.pose.pose.position.x
+		posy=self.subs.pose.pose.position.y
+		posz=self.subs.pose.pose.position.z	
 		rate=rospy.Rate(10)
-		wp_list_example=[(45, 80, 5), (30.0, 60.290628753003006, 5), (30.0, 83.709371246997, 5), (17.5, 59.7512336060275, 5), (17.5, 88.2487663939725, 5), (5.0, 61.0, 5), (5.0, 91.0, 5), (-7.5, 63.7512336060275, 5), (-7.5, 92.2487663939725, 5), (-20.0, 68.290628753003, 5), (-20.0, 91.709371246997, 5), (-35, 80, 5)]
+		wp_list_example=[]
+		for i in range(10):
+			wp_list_example.append((posx,posy,posz))		
+		#print(wp_list_example)
 		
 		for i in range(10):
 			t = wp_list_example.pop()
@@ -52,10 +60,10 @@ class Computations():
 
 	      		self.setpoint_publisher.publish(pose)
 			rate.sleep()
-	
+		print('sent')
 
 	def change_orientation(self,delta_orientation):					#change orientation of drone according to arrow
-		rate=rospy.Rate(10)		
+		
 		q=[self.subs.pose.pose.orientation.x, self.subs.pose.pose.orientation.y, self.subs.pose.pose.orientation.z, self.subs.pose.pose.orientation.w]							#present quaternion values
 		rpy=euler_from_quaternion(q)						#convert to euler			
 		yaw=((rpy[2]*180)/3.142)						#convert yaw to degrees
@@ -92,12 +100,12 @@ class Computations():
 			pose.pose.orientation.z=quat[2]
 			pose.pose.orientation.w=quat[3]	'''
 			self.setpoint_publisher.publish(pose)				#publish the changed orientation
-		  	rate.sleep()
+		  	#self.rate.sleep()
 
 	def road_next_waypoint(self,delta_orientation):
 		delta_orientation_rad = radians(delta_orientation)			#change in road orientation
 		print(delta_orientation_rad)
-		rate=rospy.Rate(10)		
+			
 		length = 3								#distance by which the drone will move
 		next_diff_x = -length*sin(delta_orientation_rad)			
 		next_diff_y = length*cos(delta_orientation_rad)				
@@ -126,7 +134,7 @@ class Computations():
 		#loop to check if the drone has reached the waypoint
 		while( abs(self.compute_distance(self.pose,self.subs.pose)) > 0.5):
 			self.setpoint_publisher.publish(self.pose)
-			rate.sleep()
+			#self.rate.sleep()
 
 
 
