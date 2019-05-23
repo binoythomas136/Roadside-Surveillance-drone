@@ -56,7 +56,7 @@ class Mission():
 		self.commands.set_mode('OFFBOARD')				#set mode to offboard
 		#self.commands.arm()						# arm the drone
 		#drone takeoff	
-		for i in range(4):
+		for i in range(5):
 			self.rate.sleep()
 		
 		if(self.stillActive()):
