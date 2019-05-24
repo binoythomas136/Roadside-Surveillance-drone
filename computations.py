@@ -43,22 +43,21 @@ class Computations():
 		
 		posx=self.subs.pose.pose.position.x
 		posy=self.subs.pose.pose.position.y
-		posz=self.subs.pose.pose.position.z	
+		posz=self.subs.pose.pose.position.z		
 		rate=rospy.Rate(10)
 		wp_list_example=[]
 		for i in range(10):
 			wp_list_example.append((posx,posy,posz))		
-		#print(wp_list_example)
-		
+		pose = PoseStamped()
 		for i in range(10):
 			t = wp_list_example.pop()
-			pose = PoseStamped()
 			pose.pose.position.x = t[0]
 			pose.pose.position.y = t[1]
 			pose.pose.position.z = t[2]
-			#print(pose)
+			pose.pose.orientation=self.subs.pose.pose.orientation
 
 	      		self.setpoint_publisher.publish(pose)
+			
 			rate.sleep()
 		print('sent')
 

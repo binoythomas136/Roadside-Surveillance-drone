@@ -65,11 +65,10 @@ class Navigation():
 			self.assign(t)
 				
 			print('going to', self.pose)
-			while abs(self.comp.compute_distance(self.pose,self.subs.pose)) > 0.5:
+			while abs(self.comp.compute_distance(self.pose,self.subs.pose)) > 0.5:				
 				if(self.stillActive()):
 					self.setpoint_publisher.publish(self.pose)					
 					rate.sleep()
-					
 				else:	
 					print('exiting coz mode changed')					
 					return	

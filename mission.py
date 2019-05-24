@@ -51,18 +51,14 @@ class Mission():
 	
 	#main function for the drone mission
 	def way_mission(self):
-		#rate=rospy.Rate(10)
 		self.comp.send_arb_waypoints()					#send arbitary number of waypoints for changing to offboard mode
 		self.commands.set_mode('OFFBOARD')				#set mode to offboard
-		#self.commands.arm()						# arm the drone
-		#drone takeoff	
-		for i in range(5):
-			self.rate.sleep()
-		
+
 		if(self.stillActive()):
 			print('going to waypoint')
 			self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z+3)
 		else:	
+			print('exiting coz mode not changed')			
 			return	
 		print('Takeoff completed')
 		
@@ -132,7 +128,7 @@ class Mission():
 			continue	
 		print("Armed")
 		while(1):		
-			if (self.subs.state.mode == 'POSCTL'): 			#failsafe(will enter only if position)
+			if (self.subs.state.mode == 'AUTO.LOITER'): 			#failsafe(will enter only if position)
 				self.way_mission()				#call the main mission
 				break
 			else:

@@ -44,15 +44,11 @@ class Commands():
 	'''	
 
         def set_mode(self, mode):
-		rate = rospy.Rate(5)
-	    	resp=self.set_mode_srv(0,mode)	
+	    	resp=command_service(0,mode)	
 		print ("Mode Changed :"+ str(resp.mode_sent))
-                while (self.subs.state.mode != mode):
-                        print("New mode: "+str(self.subs.state.mode))
-                        rate.sleep()
-                print("Got it: "+str(self.subs.state.mode))
+                
 
-        '''
+
 	def set_mode(self, mode, timeout):
 		"""mode: PX4 mode string, timeout(int): seconds"""
 		print("setting FCU mode: {0}".format(mode))
@@ -81,8 +77,7 @@ class Commands():
 		        self.fail(e)
 
 		#assertTrue(mode_set, ("failed to set mode | new mode: {0}, old mode: {1} | timeout(seconds): {2}".format(mode, old_mode, timeout)))
-        '''
-        
+
 	def arm(self):									#function for arming the drone
 		rospy.wait_for_service('/mavros/cmd/arming')
 		try:
@@ -101,7 +96,7 @@ class Commands():
 	    		print "Failed Disarming: %s" % e
 
 	def land(self):
-		self.set_mode('AUTO.LAND')						#autopilot land					
+		self.set_mode('AUTO.LAND',5)						#autopilot land					
 		'''
 		land_lat=self.subs.glob_pos.latitude					#global latitude
 		land_lon=self.subs.glob_pos.longitude					#global longitude
