@@ -51,7 +51,7 @@ class Mission():
 	
 	def arrowDetection(self):
 		#arrow detection
-		
+		'''
 
 		delta_orientation=1000						#initialize the change in orientation
 		self.commands.set_mode('AUTO.LOITER')				#change mode to hold mode
@@ -99,7 +99,7 @@ class Mission():
 			self.commands.land()	
 		else:	
 			return	
-
+'''
 	def choose_mission(self):
 		print('Choose a mission:\n1. Drone take off and land\n2.Drone make a square\n3. Arrow detectiona and road follow')
 		val=input('Enter a value:')
@@ -115,21 +115,24 @@ class Mission():
 			print('going to waypoint')
 			if val == 1:
 				self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z+3)
+				print('Takeoff completed')
 				
 			if val == 2:		
 				self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z+3)
+				print('Takeoff completed')
 				self.navigation.waypoint(self.subs.pose.pose.position.x+10,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z)
 				self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y+10,self.subs.pose.pose.position.z)
 				self.navigation.waypoint(self.subs.pose.pose.position.x-10,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z)
 				self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y-10,self.subs.pose.pose.position.z)
-			if val == 3:
-				self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z+3)
-				arrowDetection()
+			#if val == 3:
+			#	self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z+3)
+			#	print('Takeoff completed')
+			#	arrowDetection()
 				
 		else:	
 			print('exiting coz mode not changed')			
 			return	
-		print('Takeoff completed')
+		
 		
 
 		'''
@@ -187,11 +190,7 @@ class Mission():
 		
 			self.commands.land()	
 		else:	
-			return	
-		self.rate.sleep()
-		#for i in range(10):		
-			#self.rate.sleep()	
-		#self.commands.disarm()			
+			return			
 		
 
 	def main(self):
