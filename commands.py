@@ -28,7 +28,9 @@ import unittest
 class Commands():
 	def __init__(self):
 		self.subs=Subscribers()		
-		self.set_mode_srv = rospy.ServiceProxy('mavros/set_mode', SetMode)				
+		self.set_mode_srv = rospy.ServiceProxy('mavros/set_mode', SetMode)		
+		self.setpoint_publisher = rospy.Publisher("/mavros/setpoint_position/local", PoseStamped, queue_size=10)
+	
 	'''def set_mode(self,mode):							#function to set mode of the drone
 
 		rospy.wait_for_service('/mavros/set_mode')				
@@ -48,6 +50,7 @@ class Commands():
 	    	resp=self.set_mode_srv(0,mode)	
 		print ("Mode Changed :"+ str(resp.mode_sent))
                 while (self.subs.state.mode != mode):
+			self.setpoint_publisher.publish(self.subs.pose)
                         print("New mode: "+str(self.subs.state.mode))
                         rate.sleep()
                 print("Got it: "+str(self.subs.state.mode))

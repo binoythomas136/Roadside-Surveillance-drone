@@ -49,23 +49,7 @@ class Mission():
 	def stillActive(self):
 		return (self.subs.state.mode == 'OFFBOARD')
 	
-	#main function for the drone mission
-	def way_mission(self):
-		self.comp.send_arb_waypoints()					#send arbitary number of waypoints for changing to offboard mode
-		self.commands.set_mode('OFFBOARD')				#set mode to offboard
-
-		if(self.stillActive()):
-			print('going to waypoint')
-			self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z+3)
-			self.rate.sleep()
-			self.navigation.waypoint(self.subs.pose.pose.position.x+3,self.subs.pose.pose.position.y+3,self.subs.pose.pose.position.z)
-		else:	
-			print('exiting coz mode not changed')			
-			return	
-		print('Takeoff completed')
-		
-
-		
+	def arrowDetection(self):
 		#arrow detection
 		
 
@@ -88,7 +72,7 @@ class Mission():
 	
 		cv2.imwrite('Images123/image.jpg', self.subs.cv_image)		#save image for scrutiny
 		rate.sleep()
-		'''
+		
 
 		
 		#road following
@@ -115,14 +99,96 @@ class Mission():
 			self.commands.land()	
 		else:	
 			return	
+
+	def choose_mission(self):
+		print('Choose a mission:\n1. Drone take off and land\n2.Drone make a square\n3. Arrow detectiona and road follow')
+		val=input('Enter a value:')
+		self.way_mission(val)
+			
+	
+	#main function for the drone mission
+	def way_mission(self,val):
+		self.comp.send_arb_waypoints()					#send arbitary number of waypoints for changing to offboard mode
+		self.commands.set_mode('OFFBOARD')				#set mode to offboard
+
+		if(self.stillActive()):
+			print('going to waypoint')
+			if val == 1:
+				self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z+3)
+				
+			if val == 2:		
+				self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z+3)
+				self.navigation.waypoint(self.subs.pose.pose.position.x+10,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z)
+				self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y+10,self.subs.pose.pose.position.z)
+				self.navigation.waypoint(self.subs.pose.pose.position.x-10,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z)
+				self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y-10,self.subs.pose.pose.position.z)
+			if val == 3:
+				self.navigation.waypoint(self.subs.pose.pose.position.x,self.subs.pose.pose.position.y,self.subs.pose.pose.position.z+3)
+				arrowDetection()
+				
+		else:	
+			print('exiting coz mode not changed')			
+			return	
+		print('Takeoff completed')
 		
+
+		'''
+		#arrow detection
+		
+
+		delta_orientation=1000						#initialize the change in orientation
+		self.commands.set_mode('AUTO.LOITER')				#change mode to hold mode
+		rate.sleep()	
+		cv2.imwrite('Images123/image1.jpg', self.subs.cv_image )
+		while(delta_orientation ==1000):				#loop to wait for drone to see the arrow
+			print(self.subs.state.mode)
+			#failsafe		
+			if(self.subs.state.mode != 'AUTO.LOITER' and self.subs.state.mode != 'OFFBOARD'):
+				return
+			delta_orientation=self.arrow.arrow_angle(self.subs.cv_image)#get change in orientation 
+		self.comp.send_arb_waypoints()
+		self.commands.set_mode('OFFBOARD')				#move to offboard mode
+		print(delta_orientation)
+		
+		self.comp.change_orientation(delta_orientation)			#rotate the drone to the desired arrow orientation
+		rate.sleep()
+	
+		cv2.imwrite('Images123/image.jpg', self.subs.cv_image)		#save image for scrutiny
+		rate.sleep()
+		
+
+		
+		#road following
+		self.delta=1000							#initialize the next waypoint angle
+		#self.commands.set_mode('AUTO.LOITER')				#change later after making road following robust
+		#rate.sleep()
+		while(self.delta==1000):					#loop to go through to check if image is received
+			#failsafe			
+			if(self.subs.state.mode != 'AUTO.LOITER' and self.subs.state.mode != 'OFFBOARD'):
+				return			
+			cv2.imwrite('Images123/image.jpg', self.subs.cv_image)	#save image for scrutiny
+			self.delta=self.road_follow.getRoadAngle(self.subs.cv_image)#get the change in the road's orientation
+			print(self.delta)					
+			
+			
+			
+					
+		#self.comp.send_arb_waypoints()
+		#self.commands.set_mode('OFFBOARD')				#change later after making road following robust
+		self.comp.road_next_waypoint(self.delta)			#compute the next waypoint and the orientation
+				
+		if(True):
+		
+			self.commands.land()	
+		else:	
+			return	
+		'''
 		if(self.stillActive()):
 		
 			self.commands.land()	
 		else:	
 			return	
-		#self.commands.land()
-		#self.rate.sleep()
+		self.rate.sleep()
 		#for i in range(10):		
 			#self.rate.sleep()	
 		#self.commands.disarm()			
@@ -136,7 +202,7 @@ class Mission():
 		print("Armed")
 		while(1):		
 			if (self.subs.state.mode == 'AUTO.LOITER'): 			#failsafe(will enter only if position)
-				self.way_mission()				#call the main mission
+				self.choose_mission()				#call the main mission
 				break
 			else:
 				continue

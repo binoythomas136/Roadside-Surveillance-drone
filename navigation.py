@@ -41,15 +41,15 @@ class Navigation():
 		self.pose.pose.position.x = t[0]
 	  	self.pose.pose.position.y = t[1]
 		self.pose.pose.position.z = t[2]
-		#a=t[0] - self.subs.pose.pose.position.x
-		#b=t[1] - self.subs.pose.pose.position.y
-		#tanin=(atan2(b,a))
-		#quat=quaternion_from_euler(0,0,tanin)
-		#self.pose.pose.orientation.x=quat[0]
-		#self.pose.pose.orientation.y=quat[1]
-		#self.pose.pose.orientation.z=quat[2]
-		#self.pose.pose.orientation.w=quat[3]
-		self.pose.pose.orientation=self.subs.pose.pose.orientation	
+		a = t[0] - self.subs.pose.pose.position.x
+		b = t[1] - self.subs.pose.pose.position.y
+		tanin = (atan2(b,a))
+		quat = quaternion_from_euler(0,0,tanin)
+		self.pose.pose.orientation.x = quat[0]
+		self.pose.pose.orientation.y = quat[1]
+		self.pose.pose.orientation.z = quat[2]
+		self.pose.pose.orientation.w = quat[3]
+		#self.pose.pose.orientation=self.subs.pose.pose.orientation	
 	def waypoint(self,way_x,way_y,way_z):					#function to publish and travel to the next waypoint
 		rate = rospy.Rate(10)		
 		x=way_x

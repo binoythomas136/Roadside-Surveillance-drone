@@ -47,13 +47,13 @@ class RoadFollow():
 	    return closing
 
 	def topPixel(self,image):
-	    for i in range(image.shape[0]):
+	    for i in range(image.shape[0]/4):
 		mean = 0
 		sum = 0
 		midPoint = int(np.floor(image.shape[1]/2))
 		countLeft = np.sum(image[i,0:midPoint])/255
 		countRight = np.sum(image[i,midPoint:])/255
-		if(int(countLeft)!=0 and int(countRight)!=0):
+		if(int(countLeft) > 10 and int(countRight) > 10):
 		    count = countLeft + countRight
 		    for j in range(image.shape[1]):
 		        if(image[i,j]==255):
@@ -61,22 +61,22 @@ class RoadFollow():
 		    mean = sum/np.floor(count)
 		    if(int(mean) > 0):
 		        return (i,int(mean))
-		elif(int(countLeft)!=0):
+		elif(int(countLeft) > 10):
 		    count = countLeft
 		    for j in range(image.shape[1]):
 		        if(image[i,j]==255):
 		            sum = sum + j
 		    mean = sum/np.floor(count)
 		    if(int(mean) > 0):
-		        return (i,int(mean)+20)
-		elif(int(countRight)!=0):
+		        return (i,int(mean)-20)
+		elif(int(countRight) > 10):
 		    count = countRight
 		    for j in range(image.shape[1]):
 		        if(image[i,j]==255):
 		            sum = sum + j
 		    mean = sum/np.floor(count)
 		    if(int(mean) > 0):
-		        return (i,int(mean)-20)
+		        return (i,int(mean)+20)
 	    return (1000,1000)
 
 	def getOrientation(self,image,posx,posy):
