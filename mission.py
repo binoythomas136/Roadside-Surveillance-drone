@@ -49,7 +49,7 @@ class Mission():
 	def stillActive(self):
 		return (self.subs.state.mode == 'OFFBOARD')
 	
-	#main function for the drone mission
+	#mai function for the drone mission
 	def way_mission(self):
 		self.comp.send_arb_waypoints()					#send arbitary number of waypoints for changing to offboard mode
 		self.commands.set_mode('OFFBOARD')				#set mode to offboard
