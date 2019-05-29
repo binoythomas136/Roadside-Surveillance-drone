@@ -65,7 +65,7 @@ class Mission():
 		print('Takeoff completed')
 		
 
-		
+		'''
 		#arrow detection
 		
 
@@ -93,44 +93,24 @@ class Mission():
 		
 		#road following
 		self.delta=1000							#initialize the next waypoint angle
-		#self.commands.set_mode('AUTO.LOITER')				#change later after making road following robust
-		#rate.sleep()
 		while(self.delta==1000):					#loop to go through to check if image is received
 			#failsafe			
-			if(self.subs.state.mode != 'AUTO.LOITER' and self.subs.state.mode != 'OFFBOARD'):
-				return			
-			cv2.imwrite('Images123/image.jpg', self.subs.cv_image)	#save image for scrutiny
-			self.delta=self.road_follow.getRoadAngle(self.subs.cv_image)#get the change in the road's orientation
-			print(self.delta)					
-			
-			
-			
-					
-		#self.comp.send_arb_waypoints()
-		#self.commands.set_mode('OFFBOARD')				#change later after making road following robust
+			if(self.stillActive()):			
+				#cv2.imwrite('Images123/image.jpg', self.subs.cv_image)	#save image for scrutiny
+				self.delta=self.road_follow.getRoadAngle(self.subs.cv_image)#get the change in the road's orientation
+				print(self.delta)
+			else:
+				print('exiting coz mode not changed')
+				return					
 		self.comp.road_next_waypoint(self.delta)			#compute the next waypoint and the orientation
 				
-		if(True):
-		
-			self.commands.land()	
-		else:	
-			return	
-		
 		if(self.stillActive()):
-		
 			self.commands.land()	
 		else:	
-			return	
-		#self.commands.land()
-		#self.rate.sleep()
-		#for i in range(10):		
-			#self.rate.sleep()	
-		#self.commands.disarm()			
+			print('exiting coz mode not changed')
+			return			
 		
-
 	def main(self):
-		
-		#rate = rospy.Rate(10)
 		while(self.subs.state.armed != True):				#check if armed
 			continue	
 		print("Armed")

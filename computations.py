@@ -25,10 +25,14 @@ from subscribers import Subscribers
 #class for all computations
 class Computations():
 	def __init__(self):
-		#self.rate=rospy.Rate(10)
+		self.rate=rospy.Rate(10)
 		self.subs=Subscribers()
 		self.setpoint_publisher = rospy.Publisher("/mavros/setpoint_position/local", PoseStamped, queue_size=10)
 		self.pose = PoseStamped()
+
+	def stillActive(self):
+		return (self.subs.state.mode == 'OFFBOARD')
+
 	def compute_distance(self,pose_a,pose_b):					#compute distance between 2 local positions
 	    	a_x = pose_a.pose.position.x
 	   	a_y = pose_a.pose.position.y
@@ -44,7 +48,6 @@ class Computations():
 		posx=self.subs.pose.pose.position.x
 		posy=self.subs.pose.pose.position.y
 		posz=self.subs.pose.pose.position.z		
-		rate=rospy.Rate(10)
 		wp_list_example=[]
 		for i in range(10):
 			wp_list_example.append((posx,posy,posz))		
@@ -57,8 +60,7 @@ class Computations():
 			pose.pose.orientation=self.subs.pose.pose.orientation
 
 	      		self.setpoint_publisher.publish(pose)
-			
-			rate.sleep()
+			self.rate.sleep()
 		print('sent')
 
 	def change_orientation(self,delta_orientation):					#change orientation of drone according to arrow
@@ -132,9 +134,8 @@ class Computations():
 		self.pose.pose.orientation.w=quat[3]
 		#loop to check if the drone has reached the waypoint
 		while( abs(self.compute_distance(self.pose,self.subs.pose)) > 0.5):
-			self.setpoint_publisher.publish(self.pose)
-			#self.rate.sleep()
-
+			if(self.stillActive()):
+				self.setpoint_publisher.publish(self.pose)
 
 
 
