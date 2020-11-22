@@ -109,7 +109,7 @@ class Arrow():
 			    break
 		    if(angle>=np.pi/2):
 			final_angle=angle-np.pi
-		    else :
+		    else:
 			final_angle=angle
 		    #FINALLY ROTATE IMAGE
 		    rot_img = self.rotateImage(self.copy_img,final_angle*180/np.pi)
